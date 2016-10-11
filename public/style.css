@@ -1,0 +1,30 @@
+#report {
+    outline: none;
+    box-shadow: none;
+    display: block;
+    width: 100%;
+    padding: 12px 16px;
+    font-size: 14px;
+    color: #3e3f3a;
+    background-color: #ffffff;
+    background-image: none;
+    border: 1px solid #dfd7ca;
+    border-radius: 4px;
+    -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
+    box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
+    -webkit-transition: border-color ease-in-out .15s, -webkit-box-shadow ease-in-out .15s;
+    -o-transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
+    transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
+    overflow: scroll;
+}
+
+.has-error #report {
+    border-color: #d9534f;
+    -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
+    box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
+}
+
+.date-shortcut {
+    text-decoration: underline dotted red;
+    text-decoration-style: dashed;
+}
