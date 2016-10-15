@@ -5,6 +5,8 @@ var report = require('./report');
 var underscore = require('underscore');
 var db = nano.db.use('statistics');
 
+var database = require("./db")(db);
+
 var app = express();
 
 app.use(express.static(__dirname + '/public'));
@@ -58,13 +60,39 @@ app.post('/api/report/new', function (req, res) {
   var doc = req.body;
   var reportCheckState = report.check(doc, { events: events });
 
-  if (reportCheckState.success) {
-    var realDate = null;
-    var event = underscore.find(events, function (f) { return f.label == doc.date; });
-    doc.date = event.date;
-    doc.type = event.type;
-    db.insert(doc, function(err, body) { });
+  if (!reportCheckState.success) {
+    res.send(reportCheckState);
+    return;
   }
+
+  var event = underscore.find(events, function (f) { return f.label == doc.date; });
+  var key = doc.location + ":" + event.date[0] + "/" + event.date[1];
+  doc.date = event.date;
+  doc.type = event.type;
+
+  database.save(key, doc);
+
+  // db.view('index', 'byLocationAndDate', { keys: [key] }, function(err, body) {
+  //   if (!err) {
+  //     if (body.rows.length <= 0) {
+  //       db.insert(doc, function(err, body) { });
+  //     } else {
+  //       body.rows.forEach(function(rdoc) {
+  //         console.log(rdoc);
+  //         var id = rdoc.value[0];
+  //         var rev = rdoc.value[1];
+  //         doc._id = id;
+  //         doc._rev = rev;
+  //         db.insert(doc, function(err, body) { });
+  //       });
+  //     }
+  //   } else {
+  //     console.log(err);
+  //   }
+  // });
+
+
+  //db.insert(doc, function(err, body) { });
 
   res.send(reportCheckState);
 });
