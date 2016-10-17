@@ -65,8 +65,10 @@ app.post('/api/report/new', function (req, res) {
     return;
   }
 
-  var event = underscore.find(events, function (f) { return f.label == doc.date; });
-  var key = doc.location + ":" + event.date[0] + "/" + event.date[1];
+  var event = underscore.find(events,  (f) => f.label == doc.date );
+  var key = doc.type == "monthly" ?
+    doc.location + ":" + event.date[0] + "/" + event.date[1] :
+    doc.location + ":" + event.date;
   doc.date = event.date;
   doc.type = event.type;
 
