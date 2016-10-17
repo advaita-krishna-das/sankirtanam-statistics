@@ -72,33 +72,22 @@ app.post('/api/report/new', function (req, res) {
 
   database.save(key, doc);
 
-  // db.view('index', 'byLocationAndDate', { keys: [key] }, function(err, body) {
-  //   if (!err) {
-  //     if (body.rows.length <= 0) {
-  //       db.insert(doc, function(err, body) { });
-  //     } else {
-  //       body.rows.forEach(function(rdoc) {
-  //         console.log(rdoc);
-  //         var id = rdoc.value[0];
-  //         var rev = rdoc.value[1];
-  //         doc._id = id;
-  //         doc._rev = rev;
-  //         db.insert(doc, function(err, body) { });
-  //       });
-  //     }
-  //   } else {
-  //     console.log(err);
-  //   }
-  // });
-
-
-  //db.insert(doc, function(err, body) { });
-
   res.send(reportCheckState);
 });
 
 app.get('/api/location/check', function (req, res) {
 
+});
+
+app.get('/api/report/overall', function (req, res) {
+  db.view('overall', 'overallByLocation', { reduce: true, group_level: 1 }, function(err, body) {
+    if (!err) {
+      res.json(body.rows);
+      //body.rows.forEach(function(doc) {
+      //  console.log(doc.value);
+      //});
+    }
+  });
 });
 
 app.listen(3000, function () {
