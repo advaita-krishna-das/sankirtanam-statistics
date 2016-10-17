@@ -17,13 +17,15 @@
     <script src="assets/jquery-3.1.1/js/jquery-3.1.1.min.js" charset="utf-8"></script>
     <script src="assets/chartist-0.9.8/js/chartist.min.js" charset="utf-8"></script>
     <script src="assets/underscore-1.8.3/js/underscore-min.js" charset="utf-8"></script>
+    <script src="assets/jquery.jsontotable-1.1.3/js/jquery.jsontotable.min.js" charset="utf-8"></script>
 
     <link href="style.css" rel="stylesheet">
 </head>
 
 <body>
     <div class="container">
-        <div class="ct-chart ct-octave" />
+        <div class="ct-chart ct-octave"></div>
+        <div id="jsontotable" class="jsontotable"></div>
     </div>
 </body>
 
@@ -44,7 +46,7 @@
             var values     = _.map(data, function(row) { return row.value; });
             var transposed = _.zip.apply(_, values)
 
-            var data = {
+            var chartData = {
               labels: locations,
               series: transposed
             };
@@ -54,10 +56,13 @@
               onlyInteger: true
             };
 
-            new Chartist.Bar('.ct-chart', data, options);
+            new Chartist.Bar('.ct-chart', chartData, options);
 
-            console.log(values);
-            console.log();
+            var tableData = data.map(function (row) { return [ row.key[0], row.value[0],row.value[1],row.value[2],row.value[3] ] })
+            tableData.unshift(["Локация", "МБ", "Б", "С", "М"]);
+            //tableData = _.zip(tableData, [1,2,3,4,5]);
+            console.log(tableData);
+            $.jsontotable(tableData, { id: '#jsontotable', className: 'table table-hover' });
         }
     });
 
