@@ -80,12 +80,21 @@ app.get('/api/location/check', function (req, res) {
 });
 
 app.get('/api/report/overall', function (req, res) {
+  var bookScores = [2, 1, 0.5, 0.25];
+
   db.view('overall', 'overallByLocation', { reduce: true, group_level: 1 }, function(err, body) {
     if (!err) {
-      res.json(body.rows);
-      //body.rows.forEach(function(doc) {
-      //  console.log(doc.value);
-      //});
+      var result = underscore.map(body.rows, function(row) {
+        var location = row.key[0];
+        var books    = row.value;
+        var scores   = books.map((v, i) => v * bookScores[i]);
+        var overallBooks  = books.reduce((pv, cv) => pv + cv, 0);
+        var overallScores = scores.reduce((pv, cv) => pv + cv, 0);
+
+        return { location, books, scores, overallBooks, overallScores };
+      });
+
+      res.json(result);
     }
   });
 });
