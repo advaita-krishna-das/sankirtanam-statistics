@@ -32,6 +32,7 @@ app.get('/', function (req, res) {
 
 app.get('/locations.json', function (req, res) {
   var term = req.query.term;
+  var lterm = term.toLowerCase();
 
   var locations = [
     { label: "Санкт-Петербург" },
@@ -40,7 +41,8 @@ app.get('/locations.json', function (req, res) {
   ];
 
   var result = underscore.filter(locations, function (item) {
-    return item.label.indexOf(term) != -1;
+    var label = item.label.toLowerCase();
+    return label.indexOf(lterm) != -1;
   });
 
   res.json(result || []);
@@ -48,9 +50,11 @@ app.get('/locations.json', function (req, res) {
 
 app.get('/events.json', function (req, res) {
   var term = req.query.term;
+  var lterm = term.toLowerCase();
 
   var result = underscore.filter(events, function (item) {
-    return item.label.indexOf(term) != -1;
+    var label = item.label.toLowerCase();
+    return label.indexOf(lterm) != -1;
   });
 
   res.json(result || []);
