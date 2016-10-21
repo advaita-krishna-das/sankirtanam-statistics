@@ -13,12 +13,14 @@
 
     <link href="assets/bootstrap-3.3.7/css/bootstrap.min.css" rel="stylesheet">
     <link href="assets/jquery-ui-1.12.1/jquery-ui.min.css" rel="stylesheet">
+    <link href="assets/font-awesome-4.6.3/css/font-awesome.min.css" rel="stylesheet">
     <link href="jquery.autocomplete.css" rel="stylesheet">
 
     <script src="assets/jquery-3.1.1/js/jquery-3.1.1.min.js" charset="utf-8"></script>
     <script src="assets/jquery-ui-1.12.1/jquery-ui.min.js" charset="utf-8"></script>
     <script src="assets/tabletojson/js/jquery.tabletojson.js" charset="utf-8"></script>
     <script src="assets/underscore-1.8.3/js/underscore-min.js" charset="utf-8"></script>
+    <script src="assets/bootstrap-3.3.7/js/bootstrap.js" charset="utf-8"></script>
 
     <link href="style.css" rel="stylesheet">
 </head>
@@ -36,6 +38,7 @@
                         <label for="location" class="col-sm-2 control-label">Локация</label>
                         <div class="col-sm-10">
                             <input type="text" class="form-control" id="location" placeholder="Локация">
+                            <span id="location-errors" class="help-block"></span>
                             <span class="help-block">Введите название города или ашрама за который Вы отправляете отчет. Пример: "Санкт-Петербург", "Москва. Ашрам Бхактиведанты".</span>
                         </div>
                     </div>
@@ -44,7 +47,9 @@
                         <div class="col-sm-10">
                             <input type="text" class="form-control" id="date" placeholder="Дата или событие">
                             <input type="hidden" id="date-type">
-                            <span class="help-block">Введите дату отчета или название сбытия, напимер:
+                            <span id="date-errors" class="help-block"></span>
+                            <span class="help-block">
+                              Введите дату отчета или название сбытия, напимер:
                               <span class="date-shortcut">Январь 2016</span>, <span class="date-shortcut">Марафон Прабхупады 2016</span>
                             </span>
                         </div>
@@ -55,13 +60,14 @@
                         <label for="report" class="col-sm-2 control-label">Отчёт</label>
                         <div class="col-sm-10">
                             <div id="report" placeholder="Отчёт" contenteditable="true"></div>
+                            <span id="report-errors" class="help-block"></span>
                             <span class="help-block">Вставьте данные из Excel сюда.</span>
                         </div>
                     </div>
 
                     <div class="form-group">
                         <div class="col-sm-offset-2 col-sm-10">
-                            <button type="submit" class="btn btn-default" id="send">Отправить</button>
+                            <button type="submit" class="btn btn-default" id="send" data-complete-text="Отчёт сохранён" data-loading-text="<i class='fa fa-circle-o-notch fa-spin'></i> Отправляем отчёт">Отправить</button>
                         </div>
                     </div>
                 </form>
@@ -71,7 +77,6 @@
 </body>
 
 <script>
-
     // TODO: http://stackoverflow.com/questions/4815330/jquery-ui-autocomplete-with-item-and-id
 
     // Generates report object using specified location, date and table
@@ -101,19 +106,22 @@
     $(document).ready(function() {
 
         $("#location").autocomplete({
-          source: "locations.json",
+            source: "locations.json",
         });
 
         $("#date").autocomplete({
-          source: "events.json",
-          select: function (event, ui) {
-            var type = ui.item.type;
-            $("#date-type").val(type);
-          }
+            source: "events.json",
+            select: function(event, ui) {
+                var type = ui.item.type;
+                $("#date-type").val(type);
+            }
         });
 
         $("#send").bind('click', function(e) {
             e.preventDefault();
+            var $this = $(this);
+            $this.button('loading');
+
             var reportTable = $("table");
             var table = reportTable.tableToJSON();
             var location = $("#location").val();
@@ -127,13 +135,19 @@
                 contentType: 'application/json',
                 data: JSON.stringify(report),
                 success: function(data) {
-                    var sccess = data.success;
+                    var success = data.success;
                     var errors = data.errors;
-                    console.log(data);
 
                     $(".has-error").removeClass("has-error")
                     for (error of errors) {
                         $("#" + error.field).parent().addClass("has-error");
+                        $("#" + error.field + "-errors").html(error.message);
+                    }
+
+                    if (success) {
+                      $this.button("complete");
+                    } else {
+                      $this.button('reset');
                     }
                 }
             });
