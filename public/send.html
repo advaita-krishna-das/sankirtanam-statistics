@@ -138,6 +138,7 @@
                     var success = data.success;
                     var errors = data.errors;
 
+                    $("[id$=-errors]").html(""); // remove all error messages
                     $(".has-error").removeClass("has-error")
                     for (error of errors) {
                         $("#" + error.field).parent().addClass("has-error");
