@@ -13,12 +13,16 @@ app.use(express.static(__dirname + '/public'));
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
-var events = [
-  { label: "Январь 2016",  type: "monthly", date: [2016, 1] },
-  { label: "Февраль 2016", type: "monthly", date: [2016, 2] },
-  { label: "Март 2016",    type: "monthly", date: [2016, 3] },
-  { label: "Марафон Прабхупады 2016 (Декабрь)", type: "event" },
-];
+var events = [];
+var locations = [];
+
+db.get('config:events', function(err, body) {
+  if (!err) events = body.events;
+});
+
+db.get('config:locations', function(err, body) {
+  if (!err) locations = body.locations;
+});
 
 app.use(function(req, res, next) {
   res.header("Access-Control-Allow-Origin", "*");
@@ -33,12 +37,6 @@ app.get('/', function (req, res) {
 app.get('/locations.json', function (req, res) {
   var term = req.query.term;
   var lterm = term.toLowerCase();
-
-  var locations = [
-    { label: "Санкт-Петербург" },
-    { label: "Москва" },
-    { label: "Ташкент" },
-  ];
 
   var result = underscore.filter(locations, function (item) {
     var label = item.label.toLowerCase();

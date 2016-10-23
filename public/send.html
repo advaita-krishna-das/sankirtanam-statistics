@@ -107,10 +107,12 @@
 
         $("#location").autocomplete({
             source: "locations.json",
+            minLength: 3,
         });
 
         $("#date").autocomplete({
             source: "events.json",
+            minLength: 3,
             select: function(event, ui) {
                 var type = ui.item.type;
                 $("#date-type").val(type);
