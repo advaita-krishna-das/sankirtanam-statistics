@@ -46,44 +46,22 @@
             var values     = _.map(data, function(row) { return row.scores; });
             var transposed = _.zip.apply(_, values)
 
-            var chartData = {
+            new Chartist.Bar('.ct-chart', {
               labels: locations,
               series: transposed
-            };
-
-            var options = {
+            }, {
               stackBars: true,
               onlyInteger: true
-            };
+            });
 
-            new Chartist.Bar('.ct-chart', chartData, options);
+            var tableData = data.map(function (row) { return [
+              row.location, row.overallScores, row.overallBooks, row.books[0],
+              row.books[1],row.books[2],row.books[3] ] })
 
-            var tableData = data.map(function (row) { return [ row.location, row.overallScores, row.overallBooks, row.books[0],row.books[1],row.books[2],row.books[3] ] })
             tableData.unshift(["Локация", "Очки", "Книги", "МБ", "Б", "С", "М"]);
-            //tableData = _.zip(tableData, [1,2,3,4,5]);
-            console.log(tableData);
             $.jsontotable(tableData, { id: '#jsontotable', className: 'table table-hover' });
         }
     });
-
-    /*var data = {
-        labels: ['W1', 'W2', 'W3', 'W4', 'W5', 'W6', 'W7', 'W8', 'W9', 'W10'],
-        series: [
-            [1, 2, 4, 8, 6, -2, -1, -4, -6, -2]
-        ]
-    };
-
-    var options = {
-        high: 10,
-        low: -10,
-        axisX: {
-            labelInterpolationFnc: function(value, index) {
-                return index % 2 === 0 ? value : null;
-            }
-        }
-    };
-
-    new Chartist.Bar('.ct-chart', data, options);*/
 </script>
 
 </html>
