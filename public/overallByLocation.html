@@ -9,7 +9,7 @@
     <meta name="author" content="">
     <link rel="icon" href="../../favicon.ico">
 
-    <title>По событию</title>
+    <title>По локации</title>
 
     <link href="assets/bootstrap-3.3.7/css/bootstrap.min.css" rel="stylesheet">
     <link href="assets/chartist-0.9.8/css/chartist.min.css" rel="stylesheet">
@@ -30,47 +30,46 @@
 </body>
 
 <style>
-.ct-chart .ct-bar {
-    stroke-width: 60px
-}
+    .ct-chart .ct-bar {
+        stroke-width: 60px
+    }
 </style>
 
 <script>
-function getQueryVariable(variable)
-{
-       var query = window.location.search.substring(1);
-       var vars = query.split("&");
-       for (var i=0;i<vars.length;i++) {
-               var pair = vars[i].split("=");
-               if(pair[0] == variable){return pair[1];}
-       }
-       return(false);
-}
-
     $.ajax({
-        url: 'http://localhost:3000/api/report/byEvent?event='+getQueryVariable("event"),
+        url: 'http://localhost:3000/api/report/byLocation',
         type: 'GET',
         contentType: 'application/json',
         data: {},
         success: function(data) {
-            var locations  = _.map(data, function(row) { return row.location; });
-            var values     = _.map(data, function(row) { return row.scores; });
-            var transposed = _.zip.apply(_, values)
+            var locations = _.map(data, function(row) {
+                return row.location;
+            });
+            var values = _.map(data, function(row) {
+                return row.scores;
+            });
+            values = _.zip.apply(_, values);
 
             new Chartist.Bar('.ct-chart', {
-              labels: locations,
-              series: transposed
+                labels: locations,
+                series: values
             }, {
-              stackBars: true,
-              onlyInteger: true
+                stackBars: true,
+                onlyInteger: true
             });
 
-            var tableData = data.map(function (row) { return [
-              row.location, row.overallScores, row.overallBooks, row.books[0],
-              row.books[1],row.books[2],row.books[3] ] })
-
+            var tableData = data.map(function(row) {
+                return [
+                    row.location, row.overallScores, row.overallBooks, row.books[0],
+                    row.books[1], row.books[2], row.books[3]
+                ]
+            })
             tableData.unshift(["Локация", "Очки", "Книги", "МБ", "Б", "С", "М"]);
-            $.jsontotable(tableData, { id: '#jsontotable', className: 'table table-hover' });
+
+            $.jsontotable(tableData, {
+                id: '#jsontotable',
+                className: 'table table-hover'
+            });
         }
     });
 </script>
