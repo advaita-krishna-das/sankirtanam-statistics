@@ -9,7 +9,7 @@
     <meta name="author" content="">
     <link rel="icon" href="../../favicon.ico">
 
-    <title>View report</title>
+    <title>Событие</title>
 
     <link href="assets/bootstrap-3.3.7/css/bootstrap.min.css" rel="stylesheet">
     <link href="assets/chartist-0.9.8/css/chartist.min.css" rel="stylesheet">
@@ -36,8 +36,19 @@
 </style>
 
 <script>
+function getQueryVariable(variable)
+{
+       var query = window.location.search.substring(1);
+       var vars = query.split("&");
+       for (var i=0;i<vars.length;i++) {
+               var pair = vars[i].split("=");
+               if(pair[0] == variable){return pair[1];}
+       }
+       return(false);
+}
+
     $.ajax({
-        url: 'http://localhost:3000/api/report/byLocation',
+        url: 'http://localhost:3000/api/report/byEvent?event='+getQueryVariable("event"),
         type: 'GET',
         contentType: 'application/json',
         data: {},

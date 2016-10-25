@@ -43,14 +43,14 @@
                         </div>
                     </div>
                     <div class="form-group">
-                        <label for="date" class="col-sm-2 control-label">Дата</label>
+                        <label for="event" class="col-sm-2 control-label">Дата</label>
                         <div class="col-sm-10">
-                            <input type="text" class="form-control" id="date" placeholder="Дата или событие">
-                            <input type="hidden" id="date-type">
-                            <span id="date-errors" class="help-block"></span>
+                            <input type="text" class="form-control" id="event" placeholder="Дата или событие">
+                            <input type="hidden" id="event-type">
+                            <span id="event-errors" class="help-block"></span>
                             <span class="help-block">
                               Введите дату отчета или название сбытия, напимер:
-                              <span class="date-shortcut">Январь 2016</span>, <span class="date-shortcut">Марафон Прабхупады 2016</span>
+                              <span class="event-shortcut">Январь 2016</span>, <span class="event-shortcut">Марафон Прабхупады 2016</span>
                             </span>
                         </div>
                     </div>
@@ -79,12 +79,12 @@
 <script>
     // TODO: http://stackoverflow.com/questions/4815330/jquery-ui-autocomplete-with-item-and-id
 
-    // Generates report object using specified location, date and table
-    function generateReport(location, date, type, table) {
+    // Generates report object using specified location, event and table
+    function generateReport(location, event, type, table) {
         var report = {
             location: location,
             type: type,
-            date: date,
+            event: event,
             records: [] // fill it later
         };
 
@@ -110,12 +110,12 @@
             minLength: 3,
         });
 
-        $("#date").autocomplete({
+        $("#event").autocomplete({
             source: "events.json",
             minLength: 3,
             select: function(event, ui) {
                 var type = ui.item.type;
-                $("#date-type").val(type);
+                $("#event-type").val(type);
             }
         });
 
@@ -127,9 +127,9 @@
             var reportTable = $("table");
             var table = reportTable.tableToJSON();
             var location = $("#location").val();
-            var date = $("#date").val();
-            var type = $("#date-type").val();
-            var report = generateReport(location, date, type, table);
+            var event = $("#event").val();
+            var type = $("#event-type").val();
+            var report = generateReport(location, event, type, table);
 
             $.ajax({
                 url: 'http://localhost:3000/api/report/new',

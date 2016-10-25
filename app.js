@@ -15,6 +15,7 @@ app.use(bodyParser.json());
 
 var events = [];
 var locations = [];
+var bookScores = [2, 1, 0.5, 0.25];
 
 db.get('config:events', function(err, body) {
   if (!err) events = body.events;
@@ -67,12 +68,15 @@ app.post('/api/report/new', function (req, res) {
     return;
   }
 
-  var event = underscore.find(events,  (f) => f.label == doc.date );
+  /*var event = underscore.find(events, (f) => f.label == doc.event);
   var key = doc.type == "monthly" ?
-    doc.location + ":" + event.date[0] + "/" + event.date[1] :
-    doc.location + ":" + event.date;
-  doc.date = event.date;
-  doc.type = event.type;
+    doc.location + ":" + event.event[0] + "/" + event.event[1] :
+    doc.location + ":" + (event.event || event.label);
+  doc.event = event.event || event.label;
+  doc.type = event.type;*/
+  //console.log(key);
+  //console.log(doc.event);
+  var key = doc.location + ":" + doc.event;
 
   database.save(key, doc);
 
@@ -83,13 +87,34 @@ app.get('/api/location/check', function (req, res) {
 
 });
 
-app.get('/api/report/overall', function (req, res) {
-  var bookScores = [2, 1, 0.5, 0.25];
+app.get('/api/report/byLocation', function (req, res) {
+  var options = { reduce: true, group_level: 1 };
+  db.view('overall', 'overallByLocation', options, function(err, body) {
+    if (err) { return; }
 
-  db.view('overall', 'overallByLocation', { reduce: true, group_level: 1 }, function(err, body) {
+    var result = underscore.map(body.rows, function(row) {
+      var location = row.key;
+      var books    = row.value;
+      var scores   = books.map((v, i) => v * bookScores[i]);
+      var overallBooks  = books.reduce((pv, cv) => pv + cv, 0);
+      var overallScores = scores.reduce((pv, cv) => pv + cv, 0);
+
+      return { location, books, scores, overallBooks, overallScores };
+    });
+
+    res.json(result);
+  });
+});
+
+app.get('/api/report/byEvent', function (req, res) {
+  var event = req.query.event;
+  var options = { reduce: true, group_level: 2, inclusive_end:true, startkey:[event,null], endkey: [event, "\u9999"]};
+  console.log(event);
+
+  db.view('overall', 'overallByEvent', options, function(err, body) {
     if (!err) {
       var result = underscore.map(body.rows, function(row) {
-        var location = row.key[0];
+        var location = row.key[1];
         var books    = row.value;
         var scores   = books.map((v, i) => v * bookScores[i]);
         var overallBooks  = books.reduce((pv, cv) => pv + cv, 0);

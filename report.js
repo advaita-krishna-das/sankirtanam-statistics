@@ -21,7 +21,7 @@ exports.check = function (report, options) {
   }
 
   // report must have "locaton" field
-  if (isEmpty(report.location)) { // TODO: replace with nullOrEmpty
+  if (isEmpty(report.location)) {
     appendError("location", "Не указана локация");
   } else {
     if (report.location.length <= 3) { appendError("location", "Название локации слишком короткое"); }
@@ -30,14 +30,14 @@ exports.check = function (report, options) {
     // check location existance
   }
 
-  // report must have "data" field
-  if (isEmpty(report.date)) { // TODO: replace with nullOrEmpty
-    appendError("date", "Не указана дата/событие");
+  // report must have "event" field
+  if (isEmpty(report.event)) {
+    appendError("event", "Не указана дата/событие");
   } else {
-    if (report.date.length <= 3) { appendError("date", "Название даты/события слишком короткое"); }
-    if (report.date.length >= 128) { appendError("date", "Название даты/события слишком длинное"); }
-    if (isContainsWhiteSpaces(report.date)) { appendError("date", "Название даты/события не должно содержать пробелов в начале и конце"); }
-    if (!underscore.contains(eventNames, report.date)) { appendError("date", "Дата/событие не найдено"); }
+    if (report.event.length <= 3) { appendError("event", "Название даты/события слишком короткое"); }
+    if (report.event.length >= 128) { appendError("event", "Название даты/события слишком длинное"); }
+    if (isContainsWhiteSpaces(report.event)) { appendError("event", "Название даты/события не должно содержать пробелов в начале и конце"); }
+    if (!underscore.contains(eventNames, report.event)) { appendError("event", "Дата/событие не найдено"); }
   }
 
   // report must have "records" field

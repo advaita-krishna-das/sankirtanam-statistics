@@ -1,7 +1,7 @@
 module.exports = function(db) {
     /* Save */
     function save(key, doc) {
-        db.view('index', 'byLocationAndDate', {
+        db.view('index', 'byLocation', {
             keys: [key]
         }, function(err, body) {
             if (err) {
