@@ -24,9 +24,14 @@
 
 <body>
     <div class="container">
-        <h1 id="title"></h1>
+        <h1 id="title">Событие</h1>
         <div class="ct-chart ct-octave"></div>
+
+        <h2>По локациям</h2>
         <div id="jsontotable" class="jsontotable"></div>
+
+        <h2>По распространителям</h2>
+        <div id="jsontotable2" class="jsontotable"></div>
     </div>
 </body>
 
@@ -50,6 +55,7 @@
     }
 
     var reportName = getQueryVariable("event");
+    $("#title").html(decodeURIComponent(reportName));
 
     $.ajax({
         url: 'http://localhost:3000/api/report/byEvent?event=' + reportName,
@@ -85,8 +91,27 @@
                 id: '#jsontotable',
                 className: 'table table-hover'
             });
+        }
+    });
 
-            $("#title").html(decodeURIComponent(reportName));
+    $.ajax({
+        url: 'http://localhost:3000/api/report/byPerson?event=' + reportName,
+        type: 'GET',
+        contentType: 'application/json',
+        data: {},
+        success: function(data) {
+            var tableData = data.map(function(row) {
+                return [
+                    row.name, row.location, row.overallScores, row.overallBooks, row.books[0],
+                    row.books[1], row.books[2], row.books[3]
+                ]
+            })
+
+            tableData.unshift(["Имя", "Локация", "Очки", "Книги", "МБ", "Б", "С", "М"]);
+            $.jsontotable(tableData, {
+                id: '#jsontotable2',
+                className: 'table table-hover'
+            });
         }
     });
 </script>

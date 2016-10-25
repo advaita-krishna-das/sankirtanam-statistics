@@ -128,6 +128,29 @@ app.get('/api/report/byEvent', function (req, res) {
   });
 });
 
+app.get('/api/report/byPerson', function (req, res) {
+  var event = req.query.event;
+  var options = { reduce: true, group_level: 3, inclusive_end:true, startkey:[event,null], endkey: [event, "\u9999"]};
+
+  db.view('overall', 'overallByPerson', options, function(err, body) {
+    if (!err) {
+      var result = underscore.map(body.rows, function(row) {
+        console.log(row.key);
+        var name = row.key[1];
+        var location = row.key[2];
+        var books    = row.value;
+        var scores   = books.map((v, i) => v * bookScores[i]);
+        var overallBooks  = books.reduce((pv, cv) => pv + cv, 0);
+        var overallScores = scores.reduce((pv, cv) => pv + cv, 0);
+
+        return { name, location, books, scores, overallBooks, overallScores };
+      });
+
+      res.json(result);
+    }
+  });
+});
+
 app.listen(3000, function () {
   console.log('Example app listening on port 3000!');
 });
