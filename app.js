@@ -151,6 +151,31 @@ app.get('/api/report/byPerson', function (req, res) {
   });
 });
 
+app.get('/api/report/byDays', function (req, res) {
+  var event = req.query.event;
+  var options = { inclusive_end:true, startkey:[event,null,null], endkey: [event, "\u9999", "\u9999"]};
+
+  db.view('overall', 'daysByPerson', options, function(err, body) {
+    if (err) {
+      console.log(err);
+    }
+
+    var result = underscore.map(body.rows, function(row) {
+      console.log(row.key);
+      var name = row.key[1];
+      var location = row.key[2];
+      var books    = row.value[0];
+      var days    = row.value[1];
+
+      return { name, location, books, days };
+    });
+
+    res.json(result);
+
+  });
+});
+
+
 app.listen(3000, function () {
   console.log('Example app listening on port 3000!');
 });

@@ -22,6 +22,12 @@
     <link href="style.css" rel="stylesheet">
 </head>
 
+<style>
+.table-container {
+  overflow-x: scroll;
+}
+</style>
+
 <body>
     <div class="container">
         <h1 id="title">Событие</h1>
@@ -32,6 +38,11 @@
 
         <h2>По распространителям</h2>
         <div id="jsontotable2" class="jsontotable"></div>
+
+        <h2>По дням</h2>
+        <div class="table-container">
+            <div id="jsontotable3" class="jsontotable"></div>
+        </div>
     </div>
 </body>
 
@@ -111,6 +122,35 @@
             $.jsontotable(tableData, {
                 id: '#jsontotable2',
                 className: 'table table-hover'
+            });
+        }
+    });
+
+    $.ajax({
+        url: 'http://localhost:3000/api/report/byDays?event=' + reportName,
+        type: 'GET',
+        contentType: 'application/json',
+        data: {},
+        success: function(data) {
+            var maxDays = 0;
+            var tableData = data.map(function(row) {
+                var a = [
+                    row.name, row.location, row.books
+                ]
+                a.push.apply(a, row.days);
+                if (row.days.length > maxDays) maxDays = row.days.length;
+                return a;
+            })
+
+            var header = ["Имя", "Локация", "Книги"];
+            for (i = 1; i <= maxDays; i++) {
+                header.push("Д" + i);
+            }
+
+            tableData.unshift(header);
+            $.jsontotable(tableData, {
+                id: '#jsontotable3',
+                className: 'table table-hover table-condensed'
             });
         }
     });

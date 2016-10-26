@@ -90,12 +90,22 @@
 
         // maps specified data a into report's record
         report.records = _.map(table, function(a) {
+            var days = {};
+            // TODO: magic number 31! Дней в марафоне может быть больше
+            for (i = 1; i <= 31; i++) {
+                var v = parseCount(a["Д"+i])
+                days[i] = v;
+            }
+            days = _.map(days, function (f) { return f; });
+
             return {
                 name: a["Имя"],
-                count: [parseCount(a["МБ"]), parseCount(a["БГ"]), parseCount(a["СР"]), parseCount(a["МЛ"])]
+                count: [parseCount(a["МБ"]), parseCount(a["БГ"]), parseCount(a["СР"]), parseCount(a["МЛ"])],
+                days: days
             }
         });
 
+        console.log(report);
         return report;
     }
 
