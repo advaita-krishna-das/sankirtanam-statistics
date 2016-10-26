@@ -49,14 +49,19 @@ app.get('/locations.json', function (req, res) {
 
 app.get('/events.json', function (req, res) {
   var term = req.query.term;
-  var lterm = term.toLowerCase();
 
-  var result = underscore.filter(events, function (item) {
-    var label = item.label.toLowerCase();
-    return label.indexOf(lterm) != -1;
-  });
+  if (term) {
+    var lterm = term.toLowerCase();
 
-  res.json(result || []);
+    var result = underscore.filter(events, function (item) {
+      var label = item.label.toLowerCase();
+      return label.indexOf(lterm) != -1;
+    });
+
+    res.json(result || []);
+  } else {
+    res.json(events);
+  }
 });
 
 app.post('/api/report/new', function (req, res) {

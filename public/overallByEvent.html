@@ -26,11 +26,16 @@
 .table-container {
   overflow-x: scroll;
 }
+
+.event-label {
+  cursor: pointer;
+}
 </style>
 
 <body>
     <div class="container">
         <h1 id="title">Событие</h1>
+        <div id="events"></div>
         <div class="ct-chart ct-octave"></div>
 
         <h2>По локациям</h2>
@@ -39,9 +44,11 @@
         <h2>По распространителям</h2>
         <div id="jsontotable2" class="jsontotable"></div>
 
-        <h2>По дням</h2>
-        <div class="table-container">
-            <div id="jsontotable3" class="jsontotable"></div>
+        <div id="byDay" style="display: none;">
+          <h2>По дням</h2>
+          <div class="table-container">
+              <div id="jsontotable3" class="jsontotable"></div>
+          </div>
         </div>
     </div>
 </body>
@@ -67,6 +74,11 @@
 
     var reportName = getQueryVariable("event");
     $("#title").html(decodeURIComponent(reportName));
+
+    $(document).on("click", ".event-label", function (elem) {
+      var eventName = $(this).text();
+      window.location.href = "/overallByEvent.html?event=" + eventName;
+    });
 
     $.ajax({
         url: 'http://localhost:3000/api/report/byEvent?event=' + reportName,
@@ -144,13 +156,30 @@
 
             var header = ["Имя", "Локация", "Книги"];
             for (i = 1; i <= maxDays; i++) {
-                header.push("Д" + i);
+                header.push(i);
             }
+
+
+            if (tableData.length > 0) { $("#byDay").show(); }
 
             tableData.unshift(header);
             $.jsontotable(tableData, {
                 id: '#jsontotable3',
                 className: 'table table-hover table-condensed'
+            });
+
+        }
+    });
+
+    $.ajax({
+        url: 'http://localhost:3000/events.json',
+        type: 'GET',
+        contentType: 'application/json',
+        data: {},
+        success: function(data) {
+            var labels = _.map(data, function (d) { return d.label; });
+            labels.forEach(function(label) {
+              $("#events").append("<span style='opacity:.5' class='event-label label label-default'>" + label + "</span> ");
             });
         }
     });
