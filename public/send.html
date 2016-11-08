@@ -77,7 +77,7 @@
 </body>
 
 <script>
-    // TODO: http://stackoverflow.com/questions/4815330/jquery-ui-autocomplete-with-item-and-id
+    var host = "http://cdb.sankirtanam.ru";
 
     // Generates report object using specified location, event and table
     function generateReport(location, event, type, table) {
@@ -142,7 +142,7 @@
             var report = generateReport(location, event, type, table);
 
             $.ajax({
-                url: 'http://localhost:3000/api/report/new',
+                url: host + '/api/report/new',
                 type: 'POST',
                 contentType: 'application/json',
                 data: JSON.stringify(report),

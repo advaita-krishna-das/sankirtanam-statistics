@@ -60,6 +60,8 @@
 </style>
 
 <script>
+    var host = "http://cdb.sankirtanam.ru";
+
     function getQueryVariable(variable) {
         var query = window.location.search.substring(1);
         var vars = query.split("&");
@@ -81,7 +83,7 @@
     });
 
     $.ajax({
-        url: 'http://localhost:3000/api/report/byEvent?event=' + reportName,
+        url: host + '/api/report/byEvent?event=' + reportName,
         type: 'GET',
         contentType: 'application/json',
         data: {},
@@ -118,7 +120,7 @@
     });
 
     $.ajax({
-        url: 'http://localhost:3000/api/report/byPerson?event=' + reportName,
+        url: host + '/api/report/byPerson?event=' + reportName,
         type: 'GET',
         contentType: 'application/json',
         data: {},
@@ -139,7 +141,7 @@
     });
 
     $.ajax({
-        url: 'http://localhost:3000/api/report/byDays?event=' + reportName,
+        url: host + '/api/report/byDays?event=' + reportName,
         type: 'GET',
         contentType: 'application/json',
         data: {},
@@ -172,7 +174,7 @@
     });
 
     $.ajax({
-        url: 'http://localhost:3000/events.json',
+        url: host + '/events.json',
         type: 'GET',
         contentType: 'application/json',
         data: {},
