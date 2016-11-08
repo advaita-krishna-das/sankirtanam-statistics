@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="icon" href="../../favicon.ico">
+
+    <title>Send new report</title>
+
+    <link href="assets/bootstrap-3.3.7/css/bootstrap.min.css" rel="stylesheet">
+    <link href="assets/jquery-ui-1.12.1/jquery-ui.min.css" rel="stylesheet">
+    <link href="assets/font-awesome-4.6.3/css/font-awesome.min.css" rel="stylesheet">
+    <link href="jquery.autocomplete.css" rel="stylesheet">
+
+    <script src="assets/jquery-3.1.1/js/jquery-3.1.1.min.js" charset="utf-8"></script>
+    <script src="assets/jquery-ui-1.12.1/jquery-ui.min.js" charset="utf-8"></script>
+    <script src="assets/tabletojson/js/jquery.tabletojson.js" charset="utf-8"></script>
+    <script src="assets/underscore-1.8.3/js/underscore-min.js" charset="utf-8"></script>
+    <script src="assets/bootstrap-3.3.7/js/bootstrap.js" charset="utf-8"></script>
+
+    <link href="style.css" rel="stylesheet">
+</head>
+
+<body>
+    <div class="container">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h3 class="panel-title">Данные отчета</h3>
+            </div>
+
+            <div class="panel-body">
+                <form class="form-horizontal">
+                    <div class="form-group">
+                        <label for="location" class="col-sm-2 control-label">Локация</label>
+                        <div class="col-sm-10">
+                            <input type="text" class="form-control" id="location" placeholder="Локация">
+                            <span id="location-errors" class="help-block"></span>
+                            <span class="help-block">Введите название города или ашрама за который Вы отправляете отчет. Пример: "Санкт-Петербург", "Москва. Ашрам Бхактиведанты".</span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="event" class="col-sm-2 control-label">Дата</label>
+                        <div class="col-sm-10">
+                            <input type="text" class="form-control" id="event" placeholder="Дата или событие">
+                            <input type="hidden" id="event-type">
+                            <span id="event-errors" class="help-block"></span>
+                            <span class="help-block">
+                              Введите дату отчета или название сбытия, напимер:
+                              <span class="event-shortcut">Январь 2016</span>, <span class="event-shortcut">Марафон Прабхупады 2016</span>
+                            </span>
+                        </div>
+                    </div>
+
+
+                    <div class="form-group">
+                        <label for="report" class="col-sm-2 control-label">Отчёт</label>
+                        <div class="col-sm-10">
+                            <div id="report" placeholder="Отчёт" contenteditable="true"></div>
+                            <span id="report-errors" class="help-block"></span>
+                            <span class="help-block">Вставьте данные из Excel сюда.</span>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="col-sm-offset-2 col-sm-10">
+                            <button type="submit" class="btn btn-default" id="send" data-complete-text="Отчёт сохранён" data-loading-text="<i class='fa fa-circle-o-notch fa-spin'></i> Отправляем отчёт">Отправить</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</body>
+
+<script>
+    // TODO: http://stackoverflow.com/questions/4815330/jquery-ui-autocomplete-with-item-and-id
+
+    // Generates report object using specified location, event and table
+    function generateReport(location, event, type, table) {
+        var report = {
+            location: location,
+            type: type,
+            event: event,
+            records: [] // fill it later
+        };
+
+        // maps specified data a into report's record
+        report.records = _.map(table, function(a) {
+            var days = {};
+            // TODO: magic number 31! Дней в марафоне может быть больше
+            for (i = 1; i <= 31; i++) {
+                var v = parseCount(a["Д"+i])
+                days[i] = v;
+            }
+            days = _.map(days, function (f) { return f; });
+
+            return {
+                name: a["Имя"],
+                count: [parseCount(a["МБ"]), parseCount(a["БГ"]), parseCount(a["СР"]), parseCount(a["МЛ"])],
+                days: days
+            }
+        });
+
+        console.log(report);
+        return report;
+    }
+
+    function parseCount(value) {
+        return parseInt(value || "0") || 0
+    }
+
+    $(document).ready(function() {
+
+        $("#location").autocomplete({
+            source: "locations.json",
+            minLength: 3,
+        });
+
+        $("#event").autocomplete({
+            source: "events.json",
+            minLength: 3,
+            select: function(event, ui) {
+                var type = ui.item.type;
+                $("#event-type").val(type);
+            }
+        });
+
+        $("#send").bind('click', function(e) {
+            e.preventDefault();
+            var $this = $(this);
+            $this.button('loading');
+
+            var reportTable = $("table");
+            var table = reportTable.tableToJSON();
+            var location = $("#location").val();
+            var event = $("#event").val();
+            var type = $("#event-type").val();
+            var report = generateReport(location, event, type, table);
+
+            $.ajax({
+                url: 'http://localhost:3000/api/report/new',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify(report),
+                success: function(data) {
+                    var success = data.success;
+                    var errors = data.errors;
+
+                    $("[id$=-errors]").html(""); // remove all error messages
+                    $(".has-error").removeClass("has-error")
+                    for (error of errors) {
+                        $("#" + error.field).parent().addClass("has-error");
+                        $("#" + error.field + "-errors").html(error.message);
+                    }
+
+                    if (success) {
+                      $this.button("complete");
+                    } else {
+                      $this.button('reset');
+                    }
+                }
+            });
+        });
+    });
+</script>
+
+</html>

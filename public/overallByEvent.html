@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="icon" href="../../favicon.ico">
+
+    <title>По событию</title>
+
+    <link href="assets/bootstrap-3.3.7/css/bootstrap.min.css" rel="stylesheet">
+    <link href="assets/chartist-0.9.8/css/chartist.min.css" rel="stylesheet">
+
+    <script src="assets/jquery-3.1.1/js/jquery-3.1.1.min.js" charset="utf-8"></script>
+    <script src="assets/chartist-0.9.8/js/chartist.min.js" charset="utf-8"></script>
+    <script src="assets/underscore-1.8.3/js/underscore-min.js" charset="utf-8"></script>
+    <script src="assets/jquery.jsontotable-1.1.3/js/jquery.jsontotable.min.js" charset="utf-8"></script>
+
+    <link href="style.css" rel="stylesheet">
+</head>
+
+<style>
+.table-container {
+  overflow-x: scroll;
+}
+
+.event-label {
+  cursor: pointer;
+}
+</style>
+
+<body>
+    <div class="container">
+        <h1 id="title">Событие</h1>
+        <div id="events"></div>
+        <div class="ct-chart ct-octave"></div>
+
+        <h2>По локациям</h2>
+        <div id="jsontotable" class="jsontotable"></div>
+
+        <h2>По распространителям</h2>
+        <div id="jsontotable2" class="jsontotable"></div>
+
+        <div id="byDay" style="display: none;">
+          <h2>По дням</h2>
+          <div class="table-container">
+              <div id="jsontotable3" class="jsontotable"></div>
+          </div>
+        </div>
+    </div>
+</body>
+
+<style>
+    .ct-chart .ct-bar {
+        stroke-width: 60px
+    }
+</style>
+
+<script>
+    function getQueryVariable(variable) {
+        var query = window.location.search.substring(1);
+        var vars = query.split("&");
+        for (var i = 0; i < vars.length; i++) {
+            var pair = vars[i].split("=");
+            if (pair[0] == variable) {
+                return pair[1];
+            }
+        }
+        return (false);
+    }
+
+    var reportName = getQueryVariable("event");
+    $("#title").html(decodeURIComponent(reportName));
+
+    $(document).on("click", ".event-label", function (elem) {
+      var eventName = $(this).text();
+      window.location.href = "/overallByEvent.html?event=" + eventName;
+    });
+
+    $.ajax({
+        url: 'http://localhost:3000/api/report/byEvent?event=' + reportName,
+        type: 'GET',
+        contentType: 'application/json',
+        data: {},
+        success: function(data) {
+            var locations = _.map(data, function(row) {
+                return row.location;
+            });
+            var values = _.map(data, function(row) {
+                return row.scores;
+            });
+            values = _.zip.apply(_, values);
+
+            new Chartist.Bar('.ct-chart', {
+                labels: locations,
+                series: values
+            }, {
+                stackBars: true,
+                onlyInteger: true
+            });
+
+            var tableData = data.map(function(row) {
+                return [
+                    row.location, row.overallScores, row.overallBooks, row.books[0],
+                    row.books[1], row.books[2], row.books[3]
+                ]
+            })
+
+            tableData.unshift(["Локация", "Очки", "Книги", "МБ", "Б", "С", "М"]);
+            $.jsontotable(tableData, {
+                id: '#jsontotable',
+                className: 'table table-hover'
+            });
+        }
+    });
+
+    $.ajax({
+        url: 'http://localhost:3000/api/report/byPerson?event=' + reportName,
+        type: 'GET',
+        contentType: 'application/json',
+        data: {},
+        success: function(data) {
+            var tableData = data.map(function(row) {
+                return [
+                    row.name, row.location, row.overallScores, row.overallBooks, row.books[0],
+                    row.books[1], row.books[2], row.books[3]
+                ]
+            })
+
+            tableData.unshift(["Имя", "Локация", "Очки", "Книги", "МБ", "Б", "С", "М"]);
+            $.jsontotable(tableData, {
+                id: '#jsontotable2',
+                className: 'table table-hover'
+            });
+        }
+    });
+
+    $.ajax({
+        url: 'http://localhost:3000/api/report/byDays?event=' + reportName,
+        type: 'GET',
+        contentType: 'application/json',
+        data: {},
+        success: function(data) {
+            var maxDays = 0;
+            var tableData = data.map(function(row) {
+                var a = [
+                    row.name, row.location, row.books
+                ]
+                a.push.apply(a, row.days);
+                if (row.days.length > maxDays) maxDays = row.days.length;
+                return a;
+            })
+
+            var header = ["Имя", "Локация", "Книги"];
+            for (i = 1; i <= maxDays; i++) {
+                header.push(i);
+            }
+
+
+            if (tableData.length > 0) { $("#byDay").show(); }
+
+            tableData.unshift(header);
+            $.jsontotable(tableData, {
+                id: '#jsontotable3',
+                className: 'table table-hover table-condensed'
+            });
+
+        }
+    });
+
+    $.ajax({
+        url: 'http://localhost:3000/events.json',
+        type: 'GET',
+        contentType: 'application/json',
+        data: {},
+        success: function(data) {
+            var labels = _.map(data, function (d) { return d.label; });
+            labels.forEach(function(label) {
+              $("#events").append("<span style='opacity:.5' class='event-label label label-default'>" + label + "</span> ");
+            });
+        }
+    });
+</script>
+
+</html>
