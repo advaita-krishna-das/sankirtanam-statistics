@@ -28,7 +28,7 @@ module.exports = (db) => {
 			});
 
 			// Return results back
-			callback({ result });
+			callback(result);
 		};
 
 		// Query DB
@@ -67,7 +67,7 @@ module.exports = (db) => {
 			});
 
 			// Return results back
-			callback({ result });
+			callback(result);
 		};
 
 		// Query DB
@@ -105,7 +105,7 @@ module.exports = (db) => {
 			});
 
 			// Return results back
-			callback({ result });
+			callback(result);
 		};
 
 		// Query DB
@@ -139,7 +139,7 @@ module.exports = (db) => {
 			});
 
 			// Return results back
-			callback({ result });
+			callback(result);
 		};
 
 		// Query DB
