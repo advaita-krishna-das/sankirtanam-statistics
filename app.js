@@ -9,7 +9,7 @@ var database = require("./db")(db);
 
 var app = express();
 
-var apiReport = require("./app/api/reports")();
+var apiReports = require("./app/api/reports")(db);
 var apiSuggestions = require("./app/api/suggestions")(db);
 
 app.use(express.static(__dirname + '/public'));
@@ -47,19 +47,19 @@ app.post('/api/report/new', function(req, res) {
 });
 
 app.get('/api/report/byLocation', function(req, res) {
-	apiReport.byLocation((result) => res.json(result));
+	apiReports.byLocation((result) => res.json(result));
 });
 
 app.get('/api/report/byEvent', function(req, res) {
-	apiReport.byEvent(req.query.event, (result) => res.json(result));
+	apiReports.byEvent(req.query.event, (result) => res.json(result));
 });
 
 app.get('/api/report/byPerson', (req, res) => {
-	apiReport.byPerson(req.query.event, (result) => res.json(result));
+	apiReports.byPerson(req.query.event, (result) => res.json(result));
 });
 
 app.get('/api/report/byDays', (req, res) => {
-	apiReport.byDays(req.query.event, (result) => res.json(result));
+	apiReports.byDays(req.query.event, (result) => res.json(result));
 });
 
 
