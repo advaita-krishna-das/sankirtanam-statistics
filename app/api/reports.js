@@ -1,4 +1,4 @@
-module.exports = () => {
+module.exports = (db) => {
 	const underscore = require('underscore');
 	const bookScores = [2, 1, 0.5, 0.25];
 
