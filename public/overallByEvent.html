@@ -35,6 +35,7 @@
 <body>
     <div class="container">
         <h1 id="title">Событие</h1>
+        <a href="overallByLocation.html">По локациям за всё время</a>
         <div id="events"></div>
         <div class="ct-chart ct-octave"></div>
 
@@ -60,7 +61,7 @@
 </style>
 
 <script>
-    var host = "http://cdb.sankirtanam.ru";
+    var host = ""; //"http://cdb.sankirtanam.ru";
 
     function getQueryVariable(variable) {
         var query = window.location.search.substring(1);
@@ -180,8 +181,13 @@
         data: {},
         success: function(data) {
             var labels = _.map(data, function (d) { return d.label; });
+            //labels = _.sortBy(labels, function (d) { return d; });
             labels.forEach(function(label) {
-              $("#events").append("<span style='opacity:.5' class='event-label label label-default'>" + label + "</span> ");
+              var lblClass = label.startsWith("Марафон") ? "info" : "primary";
+              /*var cu = getQueryVariable("event");
+              if (cu == label) { lblClass = "danger" };
+              console.log(cu, label);*/
+              $("#events").append("<span style='opacity:.5' class='event-label label label-"+lblClass+"'>" + label + "</span> ");
             });
         }
     });

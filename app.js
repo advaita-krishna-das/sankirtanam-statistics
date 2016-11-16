@@ -36,14 +36,16 @@ app.get('/events.json', function(req, res) {
 
 app.post('/api/report/new', function(req, res) {
 	var doc = req.body;
-	var reportCheckState = report.check(doc, { events: events });
+	var e = require('./app/api/events')().generateEvents((e) => {
+		var reportCheckState = report.check(doc, { events: e });
 
-	if (reportCheckState.success) {
-		var key = doc.location + ":" + doc.event;
-		database.save(key, doc);
-	}
+		if (reportCheckState.success) {
+			var key = doc.location + ":" + doc.event;
+			database.save(key, doc);
+		}
 
-	res.send(reportCheckState);
+		res.send(reportCheckState);
+		});
 });
 
 app.get('/api/report/byLocation', function(req, res) {
