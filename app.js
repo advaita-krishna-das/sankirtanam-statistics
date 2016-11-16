@@ -36,7 +36,7 @@ app.get('/events.json', function(req, res) {
 
 app.post('/api/report/new', function(req, res) {
 	var doc = req.body;
-	var e = require('./app/api/events')().generateEvents((e) => {
+	var e = require('./app/api/suggestions')().generateEvents((e) => {
 		var reportCheckState = report.check(doc, { events: e });
 
 		if (reportCheckState.success) {
