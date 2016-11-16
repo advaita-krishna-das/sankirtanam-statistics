@@ -24,8 +24,12 @@
 
 <body>
     <div class="container">
-        <div class="ct-chart ct-octave"></div>
-        <div id="jsontotable" class="jsontotable"></div>
+      <h1 id="title">По локациям за всё время</h1>
+      <a href="overallByEvent.html?event=Январь 2016">По событиям</a>
+      <div class="container">
+          <div class="ct-chart ct-octave"></div>
+          <div id="jsontotable" class="jsontotable"></div>
+      </div>
     </div>
 </body>
 
@@ -36,7 +40,7 @@
 </style>
 
 <script>
-    var host = "http://cdb.sankirtanam.ru";
+    var host = ""; //"http://cdb.sankirtanam.ru";
 
     $.ajax({
         url: host + '/api/report/byLocation',
