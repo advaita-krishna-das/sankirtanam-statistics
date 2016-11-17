@@ -13,11 +13,12 @@
 
     <link href="assets/bootstrap-3.3.7/css/bootstrap.min.css" rel="stylesheet">
     <link href="assets/chartist-0.9.8/css/chartist.min.css" rel="stylesheet">
+    <link href="assets/datatables-1.10.12/datatables.min.css" rel="stylesheet" type="text/css">
 
     <script src="assets/jquery-3.1.1/js/jquery-3.1.1.min.js" charset="utf-8"></script>
     <script src="assets/chartist-0.9.8/js/chartist.min.js" charset="utf-8"></script>
     <script src="assets/underscore-1.8.3/js/underscore-min.js" charset="utf-8"></script>
-    <script src="assets/jquery.jsontotable-1.1.3/js/jquery.jsontotable.min.js" charset="utf-8"></script>
+    <script src="assets/datatables-1.10.12/datatables.min.js" type="text/javascript" charset="utf8"></script>
 
     <link href="style.css" rel="stylesheet">
 </head>
@@ -28,7 +29,7 @@
       <a href="overallByEvent.html?event=Январь 2016">По событиям</a>
       <div class="container">
           <div class="ct-chart ct-octave"></div>
-          <div id="jsontotable" class="jsontotable"></div>
+          <table id="jsontotable" class="table table-hover" style="width:100%"></table>
       </div>
     </div>
 </body>
@@ -70,11 +71,17 @@
                     row.books[1], row.books[2], row.books[3]
                 ]
             })
-            tableData.unshift(["Локация", "Очки", "Книги", "МБ", "Б", "С", "М"]);
 
-            $.jsontotable(tableData, {
-                id: '#jsontotable',
-                className: 'table table-hover'
+            var header = ["Локация", "Очки", "Книги", "МБ", "Б", "С", "М"].map(function(x) {
+              return { title: x };
+            });
+
+            $("#jsontotable").DataTable({
+              data: tableData,
+              columns:  header,
+              searching: false, paging:false, info: false,
+              order: [ [1, "desc"] ],
+              language: { url: "assets/datatables-1.10.12/russian.lang" }
             });
         }
     });

@@ -1,5 +1,6 @@
 module.exports = (db) => {
 	const underscore = require('underscore');
+	const eventsGenerator = require('./events')();
 
 	// ===========================================================================
 	locations = (term, callback) => {
@@ -40,26 +41,28 @@ module.exports = (db) => {
 			callback(result);
 		};
 
-		generateEvents(processData);
+		let e = eventsGenerator.generateEvents();
+		processData(e);
 	};
 
 	generateEvents = (callback) => {
-		/*db.get('config:events', processData);*/
 		var names = [
 			"Январь", "Февраль", "Март", "Апрель", "Май", "Июнь", "Июль", "Август",
 			"Сентябрь", "Октябрь", "Ноябрь", "Декабрь",
-			"Марафон Прабхупады", "Марафон Гаура-пурнимы"
+			"Марафон Прабхупады", "Марафон Гаура Пурнимы", "Марафон Нрисимха Чатурдаши",
+			"Марафон Джанмаштами"
 		];
-		var years = [2014, 2015, 2016, 2017, 2018];
 		var currentYear = new Date().getFullYear();
-		var typeF = (name) => name.startsWith("Марафон") ? "event" : "monthly";
+		var getEventType = (name) => name.startsWith("Марафон") ? "event" : "monthly";
+		var getActions = (name, year) => name == "Марафон Прабхупады" ? { "copy": "Декабрь " + year } : null;
 		var result = [];
 
 		for (var year = 2015; year <= currentYear; year++) {
 			for (var name in names) {
 				result.push({
 					label: names[name] + " " + year,
-					type: typeF(names[name])
+					type: getEventType(names[name]),
+					actions: getActions(names[name], year)
 				});
 			}
 		}
