@@ -36,16 +36,24 @@ app.get('/events.json', function(req, res) {
 
 app.post('/api/report/new', function(req, res) {
 	var doc = req.body;
-	var e = require('./app/api/suggestions')().generateEvents((e) => {
-		var reportCheckState = report.check(doc, { events: e });
+	var events = require('./app/api/events')().generateEvents();
+	var reportCheckState = report.check(doc, { events });
+	var event = underscore.find(events, (event) => event.label == doc.event);
 
-		if (reportCheckState.success) {
-			var key = doc.location + ":" + doc.event;
-			database.save(key, doc);
+	if (reportCheckState.success) {
+		var key = doc.location + ":" + doc.event;
+		database.save(key, doc);
+
+		if (event && event.actions && event.actions.copy) {
+			var doc2 = Object.assign({}, doc);
+			doc2.type = "monthly";
+			doc2.event = event.actions.copy;
+			console.log(doc2);
+			database.save(doc2.location + ":" + doc2.event, doc2);
 		}
+	}
 
-		res.send(reportCheckState);
-		});
+	res.send(reportCheckState);
 });
 
 app.get('/api/report/byLocation', function(req, res) {
