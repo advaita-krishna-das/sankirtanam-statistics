@@ -1,6 +1,7 @@
 module.exports = (db) => {
 	const underscore = require('underscore');
-	const bookScores = [2, 1, 0.5, 0.25];
+	const bookScores = [2, 1, 0.5, 0.25, 0]; // last one value means count of books
+                                           // get from "days" array. Don't count it as scores.
 
 	// ===========================================================================
 	/// By days report
