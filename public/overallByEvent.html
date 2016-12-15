@@ -88,7 +88,8 @@
                 return row.location;
             });
             var values = _.map(data, function(row) {
-                return row.scores;
+                isScoresNotEmpty = (row.scores[0] + row.scores[1] + row.scores[2] + row.scores[3]) > 0
+                return isScoresNotEmpty ? row.scores : row.books;
             });
             values = _.zip.apply(_, values);
 
